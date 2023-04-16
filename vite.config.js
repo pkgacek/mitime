@@ -10,7 +10,7 @@ module.exports = defineConfig({
         lib: {
             entry: path.resolve(__dirname, 'src/index.js'),
             formats: ['es'],
-            fileName: () => `Code.tmp.js`,
+            fileName: () => `Code.js`,
         },
     },
 });
