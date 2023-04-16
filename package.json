@@ -1,0 +1,25 @@
+{
+  "name": "mitime",
+  "version": "1.0.0",
+  "description": "A GAS povered dabble.me alternative",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && head -$(($(wc -l < dist/Code.tmp.js) - 3)) dist/Code.tmp.js > dist/Code.js && clasp push",
+    "preview": "vite preview",
+    "format": "prettier --write \"./src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\" && prettier --write \"./src/styles/**/*.{,css,scss}\" && prettier --write \"./__tests__/**/*.{js,jsx,ts,tsx}\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "vite": "^4.2.0",
+    "eslint": "^8.38.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-googleappsscript": "^1.0.4",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.5.1",
+    "@types/google-apps-script": "^1.0.59"
+  }
+}
