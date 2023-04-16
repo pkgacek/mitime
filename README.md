@@ -13,9 +13,9 @@ npm install
 npm run build // this will create minified script
 ```
 
-and then copy the `dist/Code.js` to your Google App Script project. Finally, run the script.
+Create a new Google App Script project by visiting: https://script.google.com/home/start and clicking `+ Create new Project`, then copy the content of `dist/Code.js` to your project. Finally, run the script.
 
-You can always use unminified script located in `lib/Code.js`.
+You can always use original script located in `lib/Code.js`.
 
 It will:
 
