@@ -1,10 +1,10 @@
 {
   "name": "mitime",
   "version": "1.0.0",
-  "description": "A GAS povered dabble.me alternative",
+  "description": "A Google App Scripts powered Dabble.me alternative.",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && head -$(($(wc -l < dist/Code.tmp.js) - 3)) dist/Code.tmp.js > dist/Code.js",
+    "build": "vite build && head -$(($(wc -l < dist/Code.tmp.js) - 3)) dist/Code.tmp.js > dist/Code.js && rm dist/Code.tmp.js",
     "deploy": "npm run build && clasp push",
     "preview": "vite preview",
     "format": "prettier --write \"./src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\" && prettier --write \"./src/styles/**/*.{,css,scss}\" && prettier --write \"./__tests__/**/*.{js,jsx,ts,tsx}\"",

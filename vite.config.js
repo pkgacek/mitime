@@ -1,4 +1,5 @@
 const path = require('path');
+// eslint-disable-next-line import/no-extraneous-dependencies
 const { defineConfig } = require('vite');
 
 module.exports = defineConfig({
@@ -7,7 +8,7 @@ module.exports = defineConfig({
             preserveEntrySignatures: 'strict',
         },
         lib: {
-            entry: path.resolve(__dirname, 'lib/Code.js'),
+            entry: path.resolve(__dirname, 'src/index.js'),
             formats: ['es'],
             fileName: () => `Code.tmp.js`,
         },

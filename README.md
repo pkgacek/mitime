@@ -1,6 +1,6 @@
 # ✏️ mitime
 
-Google App Scripts powered Dabble.me alternative. This is a Google App Script that will send you everyday a reminder to log your thoughts in this email based journal. All your replies will be labeled for you to revisit them anytime.
+A Google App Scripts powered Dabble.me alternative. This is a Google App Script that will send you everyday a reminder to log your thoughts in this email based journal. All your replies will be labeled for you to revisit them anytime.
 
 Enjoy!
 
