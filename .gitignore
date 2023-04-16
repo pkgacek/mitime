@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 # GAS files
-.clasp.json
+*.clasp.json
