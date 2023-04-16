@@ -4,7 +4,8 @@
   "description": "A GAS povered dabble.me alternative",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && head -$(($(wc -l < dist/Code.tmp.js) - 3)) dist/Code.tmp.js > dist/Code.js && clasp push",
+    "build": "vite build && head -$(($(wc -l < dist/Code.tmp.js) - 3)) dist/Code.tmp.js > dist/Code.js",
+    "deploy": "npm run build && clasp push",
     "preview": "vite preview",
     "format": "prettier --write \"./src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\" && prettier --write \"./src/styles/**/*.{,css,scss}\" && prettier --write \"./__tests__/**/*.{js,jsx,ts,tsx}\"",
     "test": "echo \"Error: no test specified\" && exit 1"
