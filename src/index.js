@@ -1,4 +1,4 @@
-/* global ScriptApp GmailApp Gmail Session */
+/* global ScriptApp HtmlService GmailApp Gmail Session */
 
 /**
  * @name doGet
@@ -351,5 +351,5 @@ export default function doGet() {
     mitime();
     setupTrigger(mitime.name);
 
-    return 'Mitime setup completed';
+    return HtmlService.createHtmlOutput('<p>Mitime is running</p>');
 }
