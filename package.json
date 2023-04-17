@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "description": "A Google App Scripts powered Dabble.me alternative.",
   "scripts": {
-    "build": "vite build && head -$(($(wc -l < dist/Code.js) - 3)) dist/Code.js > dist/Code.tmp.js && cp dist/Code.tmp.js Code.js && echo 'function doGet() {'> Code.js && cat dist/Code.tmp.js |tail -n+2>> Code.js && rm -rf dist",
+    "build": "vite build && head -$(($(wc -l < dist/Code.js) - 4)) dist/Code.js > Code.js && rm -rf dist",
     "deploy": "npm run build && clasp push",
     "format": "prettier --write \"./src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,14 +11,15 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "vite": "^4.2.0",
+    "@types/google-apps-script": "^1.0.59",
     "eslint": "^8.38.0",
     "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-googleappsscript": "^1.0.4",
     "eslint-plugin-import": "^2.27.5",
-    "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.5.1",
-    "@types/google-apps-script": "^1.0.59"
+    "terser": "^5.16.9",
+    "vite": "^4.2.0"
   }
 }

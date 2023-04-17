@@ -3,10 +3,13 @@ const path = require('path');
 const { defineConfig } = require('vite');
 
 module.exports = defineConfig({
+    esbuild: {
+        banner: '/* minified */',
+        minifyIdentifiers: false,
+        minifySyntax: true,
+        minifyWhitespace: true,
+    },
     build: {
-        rollupOptions: {
-            preserveEntrySignatures: 'strict',
-        },
         lib: {
             entry: path.resolve(__dirname, 'src/index.js'),
             formats: ['es'],
