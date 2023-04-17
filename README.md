@@ -8,7 +8,7 @@ Enjoy!
 
 ## Installation
 
--   Check the [releases](https://github.com/pkgacek/mitime/releases) to get the latest Google Script Apps Web App link. Clicking the link will setup all necessary labels, filters and triggers.
+-   Check the [latest release](https://github.com/pkgacek/mitime/releases/latest) to get the latest Google Script Apps Web App link. Clicking the link will setup all necessary labels, filters and triggers.
 
 -   You can also copy the script directly from [Google Apps Script](https://script.google.com/d/1uoBRpbx38WpoJbFqixnJQuD_UNY7H36z0Iq1zDLreXLULWJW590-f6C8/edit?usp=sharing).
 

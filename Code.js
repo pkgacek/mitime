@@ -159,7 +159,7 @@ function doGet() {
     }
     if (!functionName)
       throw new MitimeError(setupTrigger, "Function name is not defined");
-    deleteTriggers(), ScriptApp.newTrigger(functionName).timeBased().everyMinutes(5).create();
+    deleteTriggers(), ScriptApp.newTrigger(functionName).timeBased().everyDays(1).atHour(9).create();
   }
   return setupTrigger(mitime.name), mitime(), HtmlService.createHtmlOutput(`
     <div>
