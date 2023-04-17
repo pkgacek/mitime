@@ -4,7 +4,6 @@ const MITIME = "Mitime", MITIME_LABEL = MITIME.toLowerCase(), MITIME_LABEL_URL =
   LAST_WEEK: "last week",
   LAST_MONTH: "last month",
   LAST_YEAR: "last year",
-  // Skip is used to skip fetching the previous date
   SKIP: "skip"
 }, PREVIOUS_DATES_ARRAY = Object.values(PREVIOUS_DATES), EMAIL_TEMPLATE = {
   TEMPLATE_1: {
@@ -121,11 +120,12 @@ function mitime() {
     if (!user2)
       throw new MitimeError(removeEmails, "User is not defined");
     const threads = GmailApp.search(`label:${label}`, 0, 100);
+    let movedToTrash = !1;
     for (let i = 0; i < threads.length; i++) {
       const message = threads[i].getMessages()[0], fromMitime = `${MITIME} <${alias2}>`;
-      message.getFrom() === fromMitime && message.moveToTrash();
+      message.getFrom() === fromMitime && (message.moveToTrash(), movedToTrash = !0);
     }
-    deleteForever(label, user2);
+    movedToTrash && deleteForever(label, user2);
   }
   function getDate(locale2, date2 = /* @__PURE__ */ new Date()) {
     if (!locale2)
@@ -163,7 +163,7 @@ function mitime() {
   checkLabels([MITIME_LABEL]);
   const { labels } = Gmail.Users.Labels.list(user), labelsIds = getLabelIds(labels, [MITIME_LABEL]), filters = Gmail.Users.Settings.Filters.list(user).filter, filterCriteria = getFilters(alias, labelsIds);
   checkFilters(filters, filterCriteria, user), removeEmails(MITIME_LABEL, alias, user);
-  const date = getDate(locale), title = `✏️ ${MITIME} time for ${date}`, index = getRandomIndex(0, PREVIOUS_DATES_ARRAY.length - 1);
+  const date = getDate(locale), title = `✏️ ${MITIME} for ${date}`, index = getRandomIndex(0, PREVIOUS_DATES_ARRAY.length - 1);
   getPreviousDate(index, locale);
   let body = EMAIL_TEMPLATE.TEMPLATE_1.BODY;
   const footer = EMAIL_TEMPLATE.TEMPLATE_1.FOOTER;
@@ -182,9 +182,8 @@ function doGet() {
   }
   return setupTrigger(mitime.name), mitime(), HtmlService.createHtmlOutput(`
     <div>
-        <h1>👋 Hello there!</h1>
-        <p>✏️ ${MITIME} is now set up.</p>
-        <p> You should receive an email from ${MITIME} in a few minutes. If you don't see it, check your spam folder.</p>
+        <h1>✏️ ${MITIME} setup completed.</h1>
+        <p>You should receive an email from ${MITIME} in a few minutes. If you don't see it, check your spam folder.</p>
         <br />
         <p>Enjoy!</p>
     </div>

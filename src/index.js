@@ -8,9 +8,8 @@
  * }} MitimeFilters
  */
 
-const MITIME = 'Mitime';
-const MITIME_LABEL = MITIME.toLowerCase();
-const MITIME_LABEL_URL = `https://mail.google.com/mail/u/0/#label/${MITIME_LABEL}`;
+const MITIME = 'mitime';
+const MITIME_URL = `https://mail.google.com/mail/u/0/#label/${MITIME}`;
 const MITIME_SCRIPT_ID = ScriptApp.getScriptId();
 const MITIME_TRIGGER_SETTINGS_URL = `https://script.google.com/home/projects/${MITIME_SCRIPT_ID}/triggers`;
 const PREVIOUS_DATES = {
@@ -30,7 +29,7 @@ const EMAIL_TEMPLATE = {
             `<p>mitime helps you remember what's happened in your life. Reply to this email with your entry and we'll add it to your timeline.</p>`,
         ].join('\n'),
         FOOTER: [
-            `<p>You can check out your entries here: <a href="${MITIME_LABEL_URL}">${MITIME_LABEL_URL}</a></p>`,
+            `<p>You can check out your entries here: <a href="${MITIME_URL}">${MITIME_URL}</a></p>`,
             `<hr style='margin-top: 20px;margin-bottom: 20px;border: 0;border-top: 2px=solid whiteSmoke;'>`,
             `<p><i>P.S. You'll receive emails every day. You can change this by changing the <a href="${MITIME_TRIGGER_SETTINGS_URL}">trigger settings</a>.</i></p>`,
         ].join('\n'),
@@ -75,7 +74,7 @@ export function mitime() {
                 to: alias,
             },
             action: {
-                addLabelIds: [mailLabelIds?.[MITIME_LABEL]],
+                addLabelIds: [mailLabelIds?.[MITIME]],
                 removeLabelIds: ['INBOX', 'UNREAD'],
             },
         },
@@ -84,7 +83,7 @@ export function mitime() {
                 from: alias,
             },
             action: {
-                addLabelIds: [mailLabelIds?.[MITIME_LABEL]],
+                addLabelIds: [mailLabelIds?.[MITIME]],
             },
         },
     });
@@ -208,6 +207,7 @@ export function mitime() {
         if (!user) throw new MitimeError(removeEmails, 'User is not defined');
 
         const threads = GmailApp.search(`label:${label}`, 0, 100);
+        let movedToTrash = false;
         for (let i = 0; i < threads.length; i++) {
             const messages = threads[i].getMessages();
             const message = messages[0];
@@ -215,9 +215,11 @@ export function mitime() {
 
             if (message.getFrom() === fromMitime) {
                 message.moveToTrash();
+                movedToTrash = true;
             }
         }
-        deleteForever(label, user);
+
+        if (movedToTrash) deleteForever(label, user);
     }
 
     /**
@@ -281,26 +283,28 @@ export function mitime() {
 
     const user = Session.getEffectiveUser().getEmail();
     const locale = Session.getActiveUserLocale();
-    const alias = createAlias(user, MITIME_LABEL);
+    const alias = createAlias(user, MITIME);
 
-    checkLabels([MITIME_LABEL]);
+    checkLabels([MITIME]);
 
     const { labels } = Gmail.Users.Labels.list(user);
-    const labelsIds = getLabelIds(labels, [MITIME_LABEL]);
+    const labelsIds = getLabelIds(labels, [MITIME]);
     const filters = Gmail.Users.Settings.Filters.list(user).filter;
     const filterCriteria = getFilters(alias, labelsIds);
 
     checkFilters(filters, filterCriteria, user);
-    removeEmails(MITIME_LABEL, alias, user);
+    removeEmails(MITIME, alias, user);
 
     const date = getDate(locale);
-    const title = `✏️ ${MITIME} time for ${date}`;
-    const index = getRandomIndex(0, PREVIOUS_DATES_ARRAY.length - 1);
-    const previousDate = getPreviousDate(index, locale);
+    const title = `✏️ ${MITIME} for ${date}`;
     let body = EMAIL_TEMPLATE.TEMPLATE_1.BODY;
     const footer = EMAIL_TEMPLATE.TEMPLATE_1.FOOTER;
 
     // To be used in the future
+    //
+    // const index = getRandomIndex(0, PREVIOUS_DATES_ARRAY.length - 1);
+    // const previousDate = getPreviousDate(index, locale);
+    //
     // if (previousDate) {
     //     // Check if there is any email with mitime label and previous date, if there is, get its body and attach it to the email.
     //     const heading = [`<p><b>Here's what you wrote ${previousDate.name}:...</b></p>`].join('\n');
@@ -311,7 +315,6 @@ export function mitime() {
 
     body += footer;
 
-    // Send mitime mail to the user
     sendEmail(user, alias, title, body);
 }
 
@@ -351,10 +354,10 @@ export function doGet() {
 
     return HtmlService.createHtmlOutput(`
     <div>
-        <h1>👋 Hello there!</h1>
-        <p>✏️ ${MITIME} is now set up.</p>
-        <p> You should receive an email from ${MITIME} in a few minutes. If you don't see it, check your spam folder.</p>
+        <h1>✏️ ${MITIME} setup completed.</h1>
+        <p>You should receive an email from ${MITIME} in a few minutes. If you don't see it, check your spam folder.</p>
         <br />
+        <p>For more information about ${MITIME}, visit <a href="https://github.com/pkgacek/mitime">GitHub</a>.</p>
         <p>Enjoy!</p>
     </div>
     `);
