@@ -1,9 +1,9 @@
 {
   "name": "mitime",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Google App Scripts powered Dabble.me alternative.",
   "scripts": {
-    "build": "vite build && head -$(($(wc -l < dist/Code.js) - 3)) dist/Code.js > Code.js && rm -rf dist",
+    "build": "vite build && head -$(($(wc -l < dist/Code.js) - 3)) dist/Code.js > dist/Code.tmp.js && cp dist/Code.tmp.js Code.js && echo 'function doGet() {'> Code.js && cat dist/Code.tmp.js |tail -n+2>> Code.js && rm -rf dist",
     "deploy": "npm run build && clasp push",
     "format": "prettier --write \"./src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -1,16 +1,16 @@
-function H() {
-  const u = "Mitime", l = u.toLowerCase(), L = `https://mail.google.com/mail/u/0/#label/${l}`, F = `https://script.google.com/home/projects/${ScriptApp.getScriptId()}/triggers`, g = {
+function doGet() {
+  const u = "Mitime", l = u.toLowerCase(), D = `https://mail.google.com/mail/u/0/#label/${l}`, F = `https://script.google.com/home/projects/${ScriptApp.getScriptId()}/triggers`, g = {
     YESTERDAY: "yesterday",
     LAST_WEEK: "last week",
     LAST_MONTH: "last month",
     LAST_YEAR: "last year",
     // Skip is used to skip fetching the previous date
     SKIP: "skip"
-  }, R = Object.values(g), Y = [
+  }, R = Object.values(g), G = [
     "<p>mitime helps you remember what's happened in your life. Reply to this email with your entry and we'll add it to your timeline.</p>"
   ].join(`
-`), G = [
-    `<p>You can check out your entries here: <a href="${L}">${L}</a></p>`,
+`), Y = [
+    `<p>You can check out your entries here: <a href="${D}">${D}</a></p>`,
     "<hr style='margin-top: 20px;margin-bottom: 20px;border: 0;border-top: 2px=solid whiteSmoke;'>",
     `<p><i>P.S. You'll receive emails every day. You can change this by changing the <a href="${F}">trigger settings</a>.</i></p>`
   ].join(`
@@ -20,7 +20,7 @@ function H() {
       super(`${s && `[${s.name}] `}${h}`), this.name = "MitimeError";
     }
   }
-  function M(f, s) {
+  function S(f, s) {
     console.log(`${f && `[${f.name}] `}${s}`);
   }
   function _(f) {
@@ -31,9 +31,9 @@ function H() {
     }
     if (!f)
       throw new o(_, "Function name is not defined");
-    s(), ScriptApp.newTrigger(f).timeBased().everyDays(1).atHour(9).create();
+    s(), ScriptApp.newTrigger(f).timeBased().everyMinutes(5).create();
   }
-  function y() {
+  function U() {
     const f = (t, e) => ({
       to: {
         criteria: {
@@ -108,7 +108,7 @@ function H() {
         throw new o(w, "Title is not defined");
       if (!n)
         throw new o(w, "Body is not defined");
-      M(w, `Sending email to ${t} with title ${i}`), GmailApp.sendEmail(t, i, n, {
+      S(w, `Sending email to ${t} with title ${i}`), GmailApp.sendEmail(t, i, n, {
         htmlBody: n,
         from: e,
         name: u
@@ -121,7 +121,7 @@ function H() {
         throw new o(T, "User is not defined");
       const i = GmailApp.search(`in:trash label:${t}`);
       for (let n = 0; n < i.length; n++)
-        M(T, `Deleting forever emails with ${t} label`), Gmail.Users.Messages.remove(e, i[n].getId());
+        S(T, `Deleting forever emails with ${t} label`), Gmail.Users.Messages.remove(e, i[n].getId());
     }
     function p(t, e, i) {
       if (!t)
@@ -132,16 +132,16 @@ function H() {
         throw new o(p, "User is not defined");
       const n = GmailApp.search(`label:${t}`, 0, 100);
       for (let r = 0; r < n.length; r++) {
-        const a = n[r].getMessages()[0], D = `${u} <${e}>`;
-        a.getFrom() === D && (M(p, `Removing emails from ${D} with ${t} label`), a.moveToTrash());
+        const a = n[r].getMessages()[0], L = `${u} <${e}>`;
+        a.getFrom() === L && (S(p, `Removing emails from ${L} with ${t} label`), a.moveToTrash());
       }
       T(t, i);
     }
-    function S(t, e = /* @__PURE__ */ new Date()) {
+    function M(t, e = /* @__PURE__ */ new Date()) {
       if (!t)
-        throw new o(S, "Timezone is not defined");
+        throw new o(M, "Timezone is not defined");
       if (!e)
-        throw new o(S, "Date is not defined");
+        throw new o(M, "Date is not defined");
       return e.toLocaleDateString(t, {
         weekday: "long",
         year: "numeric",
@@ -156,7 +156,7 @@ function H() {
         throw new o(I, "Locale is not defined");
       const i = R[t];
       let n = /* @__PURE__ */ new Date();
-      return i === g.YESTERDAY && n.setDate(n.getDate() - 1), i === g.LAST_WEEK && n.setDate(n.getDate() - 7), i === g.LAST_MONTH && n.setMonth(n.getMonth() - 1), i === g.LAST_YEAR && n.setFullYear(n.getFullYear() - 1), i === g.SKIP ? null : (n = S(e, new Date(n)), {
+      return i === g.YESTERDAY && n.setDate(n.getDate() - 1), i === g.LAST_WEEK && n.setDate(n.getDate() - 7), i === g.LAST_MONTH && n.setMonth(n.getMonth() - 1), i === g.LAST_YEAR && n.setFullYear(n.getFullYear() - 1), i === g.SKIP ? null : (n = M(e, new Date(n)), {
         name: `${i} (${n})`,
         date: n
       });
@@ -169,14 +169,14 @@ function H() {
       const i = Math.ceil(t), n = Math.floor(e);
       return Math.floor(Math.random() * (n - i + 1) + i);
     }
-    const m = Session.getEffectiveUser().getEmail(), U = Session.getActiveUserLocale(), A = s(m, l);
+    const m = Session.getEffectiveUser().getEmail(), y = Session.getActiveUserLocale(), A = s(m, l);
     h([l]);
     const { labels: O } = Gmail.Users.Labels.list(m), k = d(O, [l]), b = Gmail.Users.Settings.Filters.list(m).filter, j = f(A, k);
     E(b, j, m), p(l, A, m);
-    const P = S(U), B = `✏️ ${u} time for ${P}`, x = $(0, R.length - 1);
-    I(x, U);
-    let v = Y;
-    v += G, w(m, A, B, v);
+    const P = M(y), B = `✏️ ${u} time for ${P}`, x = $(0, R.length - 1);
+    I(x, y);
+    let v = G;
+    v += Y, w(m, A, B, v);
   }
-  y(), _(y.name);
+  return U(), _(U.name), "Mitime setup completed";
 }

@@ -1,12 +1,12 @@
 /* global ScriptApp GmailApp Gmail Session */
 
 /**
- * @name main
+ * @name doGet
  * @description main function for mitime app. The default export gets removed after build
  * to avoid conflicts with Google Apps Script.
  * @returns {void}
  */
-export default function main() {
+export default function doGet() {
     /**
      * Object for Mitime filters
      * @typedef {{
@@ -79,7 +79,7 @@ export default function main() {
 
         if (!functionName) throw new MitimeError(setupTrigger, 'Function name is not defined');
         deleteTriggers();
-        ScriptApp.newTrigger(functionName).timeBased().everyDays(1).atHour(9).create();
+        ScriptApp.newTrigger(functionName).timeBased().everyMinutes(5).create();
     }
 
     /**
@@ -350,4 +350,6 @@ export default function main() {
 
     mitime();
     setupTrigger(mitime.name);
+
+    return 'Mitime setup completed';
 }
