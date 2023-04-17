@@ -346,7 +346,7 @@ export function doGet() {
 
         if (!functionName) throw new MitimeError(setupTrigger, 'Function name is not defined');
         deleteTriggers();
-        ScriptApp.newTrigger(functionName).timeBased().everyMinutes(5).create();
+        ScriptApp.newTrigger(functionName).timeBased().everyDays(1).atHour(9).create();
     }
 
     setupTrigger(mitime.name);
