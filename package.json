@@ -1,7 +1,7 @@
 {
   "name": "mitime",
   "version": "1.2.0",
-  "description": "A Google App Scripts powered Dabble.me alternative.",
+  "description": "A Google Apps Script powered Dabble.me alternative.",
   "scripts": {
     "build": "vite build && head -$(($(wc -l < dist/Code.js) - 4)) dist/Code.js > Code.js && rm -rf dist",
     "deploy": "npm run build && clasp push",

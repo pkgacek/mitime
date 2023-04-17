@@ -1,12 +1,18 @@
 # ✏️ mitime
 
-A Google App Scripts powered Dabble.me alternative. This is a Google App Script that will send you everyday a reminder to log your thoughts in this email based journal. All your replies will be labeled for you to revisit them anytime.
+A Google Apps Script powered Dabble.me alternative. This is a Google App Script that will send you everyday a reminder to log your thoughts in this email based journal. All your replies will be labeled for you to revisit them anytime.
 
 ![mitime message](/screenshot.png 'Email from mitime')
 
 Enjoy!
 
-## Setup
+## Installation
+
+-   Check the [releases](https://github.com/pkgacek/mitime/releases) to get the latest Google Script Apps Web App link. Clicking the link will setup all necessary labels, filters and triggers.
+
+-   You can also copy the script directly from [Google Apps Script](https://script.google.com/d/1uoBRpbx38WpoJbFqixnJQuD_UNY7H36z0Iq1zDLreXLULWJW590-f6C8/edit?usp=sharing).
+
+## Local setup
 
 Install the packages and build the script:
 
@@ -27,7 +33,7 @@ It will:
 
 ## Developing
 
-You can use `https://github.com/google/clasp` to edit the script with all of the Google App Scripts methods.
+You can use `https://github.com/google/clasp` to edit the script with all of the Google Apps Script methods.
 
 Using:
 
@@ -48,3 +54,4 @@ On the first run, the script will ask you to grant those permissions:
 
 -   [ ] Tests 💀
 -   [ ] Add `Throwback` functionality - get emails from the past and attach them to the automatic mail
+-   [ ] Add multiple email templates
