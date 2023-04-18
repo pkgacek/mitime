@@ -123,7 +123,7 @@ export function mitime(isInitialRun = false) {
         if (!properties) throw new MitimeError(prepareEmail, 'Properties are empty');
 
         return string.replace(EMAIL_REGEX, (match, property) => {
-            if (properties[property]) throw new MitimeError(prepareEmail, `Property ${property} not found`);
+            if (!properties[property]) throw new MitimeError(prepareEmail, `Property ${property} not found`);
             return properties[property];
         });
     }

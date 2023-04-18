@@ -7,18 +7,35 @@ const MITIME = "mitime", MITIME_URL = `https://mail.google.com/mail/u/0/#label/$
   SKIP: "skip"
 };
 Object.values(PREVIOUS_DATES);
-const EMAIL_TEMPLATE = {
-  TEMPLATE_1: {
-    BODY: [
-      "<p>mitime helps you remember what's happened in your life. Reply to this email with your entry and we'll add it to your timeline.</p>"
-    ].join(`
-`),
-    FOOTER: [
-      `<p>You can check out your entries here: <a href="${MITIME_URL}">${MITIME_URL}</a></p>`,
-      "<hr style='margin-top: 20px;margin-bottom: 20px;border: 0;border-top: 2px=solid whiteSmoke;'>",
-      `<p><i>P.S. You'll receive emails every day. You can change this by changing the <a href="${MITIME_TRIGGER_SETTINGS_URL}">trigger settings</a>.</i></p>`
-    ].join(`
-`)
+const HTML_HR_LINE = "<hr style='margin-top:20px;margin-bottom:20px;border:0;border-top:2px solid whiteSmoke;'>", EMAIL_REGEX = /<<(.*?)>>/gim, EMAIL_TEMPLATES = {
+  INITIAL: {
+    HEADING: [
+      [
+        "<p><<MITIME>> helps you remember what's happened in your life. Reply to this email with your entry and it will be added to your journal.</p>",
+        "<p>Everything is stored on your own Gmail account - no data is being sent to any third parties. You're just emailing yourself!</p>"
+      ]
+    ],
+    THROWBACK: [],
+    SETTINGS: [['<p>You can check out your entries here: <a href="<<MITIME_URL>>"><<MITIME_URL>></a></p>']],
+    QUESTIONS: [
+      [
+        `<p><i>P.S. You'll receive emails every day. You can change this by changing the <a href="<<MITIME_SETTINGS_URL>>">trigger settings</a>.</i></p>`
+      ]
+    ]
+  },
+  REGULAR: {
+    HEADING: [["<p>Reply to add your entry for <<MITIME_DATE>>.</p>"]],
+    THROWBACK: [
+      ["<p>Nothing to show here yet. Keep writing!</p>"],
+      ["<p>Keep writing...soon you will see some previous entries!</p>"]
+    ],
+    SETTINGS: [['<p><a href="<<MITIME_URL>>">journal</a> · <a href="<<MITIME_SETTINGS_URL>>">settings</a></p>']],
+    QUESTIONS: [
+      ["<p><i>Who did you meet today?</i></p>"],
+      ["<p><i>What have you done today?</i></p>"],
+      ["<p><i>What are you planning?</i></p>"],
+      ["<p><i>What are you grateful for?</i></p>"]
+    ]
   }
 };
 class MitimeError extends Error {
@@ -26,7 +43,53 @@ class MitimeError extends Error {
     super(`${func && `[${func.name}] `}${message}`), this.name = "MitimeError";
   }
 }
-function mitime() {
+function mitime(isInitialRun = !1) {
+  function prepareEmailProperties(date2) {
+    if (!date2)
+      throw new MitimeError(prepareEmailProperties, "Date is empty");
+    return {
+      MITIME_DATE: date2,
+      MITIME,
+      MITIME_URL,
+      MITIME_SETTINGS_URL: MITIME_TRIGGER_SETTINGS_URL
+    };
+  }
+  function randomElement(array) {
+    if (!array)
+      throw new MitimeError(randomElement, "Array is empty");
+    return array[Math.floor(Math.random() * array.length)];
+  }
+  function prepareEmail(string, properties) {
+    if (!string)
+      throw new MitimeError(prepareEmail, "String is empty");
+    if (!properties)
+      throw new MitimeError(prepareEmail, "Properties are empty");
+    return string.replace(EMAIL_REGEX, (match, property) => {
+      if (properties[property])
+        throw new MitimeError(prepareEmail, `Property ${property} not found`);
+      return properties[property];
+    });
+  }
+  function generateEmailContent(template = EMAIL_TEMPLATES.REGULAR, throwbackContent = "") {
+    if (!template)
+      throw new MitimeError(generateEmailContent, "Template is empty");
+    const emailContent = [], keys = Object.keys(template);
+    for (let i = 0; i < keys.length; i++)
+      keys[i] === "THROWBACK" && throwbackContent ? emailContent.push(throwbackContent) : (keys[i] === "SETTINGS" && emailContent.push(HTML_HR_LINE), emailContent.push(randomElement(template[keys[i]])));
+    return emailContent.flat().join(`
+`);
+  }
+  function generateEmail(isInitialEmail, date2, throwbackContent = "") {
+    if (!isInitialEmail)
+      throw new MitimeError(generateEmail, "isInitialEmail is empty");
+    if (!date2)
+      throw new MitimeError(generateEmail, "Date is empty");
+    const emailContent = generateEmailContent(
+      isInitialEmail ? EMAIL_TEMPLATES.INITIAL : EMAIL_TEMPLATES.REGULAR,
+      throwbackContent
+    ), emailProperties = prepareEmailProperties(date2);
+    return prepareEmail(emailContent, emailProperties);
+  }
   const getFilters = (alias2, mailLabelIds) => ({
     to: {
       criteria: {
@@ -145,10 +208,8 @@ function mitime() {
   checkLabels([MITIME]);
   const { labels } = Gmail.Users.Labels.list(user), labelsIds = getLabelIds(labels, [MITIME]), filters = Gmail.Users.Settings.Filters.list(user).filter, filterCriteria = getFilters(alias, labelsIds);
   checkFilters(filters, filterCriteria, user), removeEmails(MITIME, alias, user);
-  const date = getDate(locale), title = `✏️ ${MITIME} for ${date}`;
-  let body = EMAIL_TEMPLATE.TEMPLATE_1.BODY;
-  const footer = EMAIL_TEMPLATE.TEMPLATE_1.FOOTER;
-  body += footer, sendEmail(user, alias, title, body);
+  const date = getDate(locale), title = `✏️ ${MITIME} for ${date}`, body = generateEmail(isInitialRun, date);
+  sendEmail(user, alias, title, body);
 }
 function doGet() {
   function setupTrigger(functionName) {
@@ -161,11 +222,10 @@ function doGet() {
       throw new MitimeError(setupTrigger, "Function name is not defined");
     deleteTriggers(), ScriptApp.newTrigger(functionName).timeBased().everyDays(1).atHour(9).create();
   }
-  return setupTrigger(mitime.name), mitime(), HtmlService.createHtmlOutput(`
+  return setupTrigger(mitime.name), mitime(!0), HtmlService.createHtmlOutput(`
     <div>
         <h1>✏️ ${MITIME} setup completed.</h1>
         <p>You should receive an email from ${MITIME} in a few minutes. If you don't see it, check your spam folder.</p>
-        <br />
         <p>For more information about ${MITIME}, visit <a href="https://github.com/pkgacek/mitime">GitHub</a>.</p>
         <p>Enjoy!</p>
     </div>
