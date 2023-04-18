@@ -65,7 +65,7 @@ function mitime(isInitialRun = !1) {
     if (!properties)
       throw new MitimeError(prepareEmail, "Properties are empty");
     return string.replace(EMAIL_REGEX, (match, property) => {
-      if (properties[property])
+      if (!properties[property])
         throw new MitimeError(prepareEmail, `Property ${property} not found`);
       return properties[property];
     });
