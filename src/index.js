@@ -83,6 +83,8 @@ function logger(func, message) {
  * @returns {void}
  */
 export function mitime(isInitialRun = false) {
+    logger(mitime, `Running mitime with isInitialRun: ${isInitialRun}`);
+
     /**
      * @name prepareEmailProperties
      * @description prepares properties object for email
@@ -92,6 +94,7 @@ export function mitime(isInitialRun = false) {
     function prepareEmailProperties(date) {
         if (!date) throw new MitimeError(prepareEmailProperties, 'Date is empty');
 
+        logger(prepareEmailProperties, `Preparing email properties for date: ${date}`);
         return {
             MITIME_DATE: date,
             MITIME,
@@ -107,6 +110,7 @@ export function mitime(isInitialRun = false) {
      */
     function randomElement(array) {
         if (!array) throw new MitimeError(randomElement, 'Array is empty');
+        logger(randomElement, `Getting random element`);
 
         return array[Math.floor(Math.random() * array.length)];
     }
@@ -121,6 +125,8 @@ export function mitime(isInitialRun = false) {
     function prepareEmail(string, properties) {
         if (!string) throw new MitimeError(prepareEmail, 'String is empty');
         if (!properties) throw new MitimeError(prepareEmail, 'Properties are empty');
+
+        logger(prepareEmail, 'Preparing email with properties');
 
         return string.replace(EMAIL_REGEX, (match, property) => {
             if (!properties[property]) throw new MitimeError(prepareEmail, `Property ${property} not found`);
@@ -140,6 +146,8 @@ export function mitime(isInitialRun = false) {
 
         const emailContent = [];
         const keys = Object.keys(template);
+
+        logger(generateEmailContent, `Generating email content with template: ${keys}`);
         for (let i = 0; i < keys.length; i++) {
             if (keys[i] === 'THROWBACK' && throwbackContent) {
                 emailContent.push(throwbackContent);
@@ -163,8 +171,11 @@ export function mitime(isInitialRun = false) {
      * @returns {string} email content with replaced values
      */
     function generateEmail(isInitialEmail, date, throwbackContent = '') {
-        if (!isInitialEmail) throw new MitimeError(generateEmail, 'isInitialEmail is empty');
+        if (isInitialEmail === null || isInitialEmail === undefined)
+            throw new MitimeError(generateEmail, 'isInitialEmail is empty');
         if (!date) throw new MitimeError(generateEmail, 'Date is empty');
+
+        logger(generateEmail, `Generating email with isInitialEmail: ${isInitialEmail} and date: ${date}`);
 
         const emailContent = generateEmailContent(
             isInitialEmail ? EMAIL_TEMPLATES.INITIAL : EMAIL_TEMPLATES.REGULAR,
@@ -211,6 +222,8 @@ export function mitime(isInitialRun = false) {
     function createAlias(user, label) {
         if (!user) throw new MitimeError(createAlias, 'User is not defined');
         if (!label) throw new MitimeError(createAlias, 'Alias is not defined');
+
+        logger(createAlias, `Creating alias for user: ${user} and label: ${label}`);
         return `${user.split('@')[0]}+${label}@${user.split('@')[1]}`;
     }
 
@@ -222,6 +235,7 @@ export function mitime(isInitialRun = false) {
     function checkLabels(labelsArray) {
         if (!labelsArray || labelsArray.length === 0) throw new MitimeError(checkLabels, 'Labels array is not defined');
 
+        logger(checkLabels, `Checking labels: ${labelsArray}`);
         for (let i = 0; i < labelsArray.length; i++) {
             const label = GmailApp.getUserLabelByName(labelsArray[i]);
             if (!label) GmailApp.createLabel(labelsArray[i]);
@@ -239,6 +253,7 @@ export function mitime(isInitialRun = false) {
         if (!labels || labels.length === 0) throw new MitimeError(getLabelIds, 'Labels are not defined');
         if (!labelsArray || labelsArray.length === 0) throw new MitimeError(getLabelIds, 'Labels array is not defined');
 
+        logger(getLabelIds, `Getting label ids for labels: ${labelsArray}`);
         const labelsIds = {};
         for (let i = 0; i < labelsArray.length; i++) {
             const foundLabelId = labels.find((label) => label.name === labelsArray[i])?.id;
@@ -267,6 +282,7 @@ export function mitime(isInitialRun = false) {
             throw new MitimeError(checkFilters, 'Filters object is not defined');
         if (!user) throw new MitimeError(checkFilters, 'User is not defined');
 
+        logger(checkFilters, `Checking filters for user: ${user} and filters: ${filterCriteriaValues}`);
         for (let i = 0; i < filterCriteriaValues.length; i++) {
             const key = Object.keys(filterCriteria)[i];
             const foundFilterId = filters.find((f) => f.criteria[key] === filterCriteriaValues[i].criteria[key])?.id;
@@ -288,6 +304,7 @@ export function mitime(isInitialRun = false) {
         if (!title) throw new MitimeError(sendEmail, 'Title is not defined');
         if (!body) throw new MitimeError(sendEmail, 'Body is not defined');
 
+        logger(sendEmail, `Sending email from alias: ${alias} to user: ${user} with title: ${title} and body: ${body}`);
         GmailApp.sendEmail(user, title, body, {
             htmlBody: body,
             from: alias,
@@ -304,6 +321,8 @@ export function mitime(isInitialRun = false) {
         if (!user) throw new MitimeError(deleteForever, 'User is not defined');
 
         const threads = GmailApp.search(`in:trash label:${label}`);
+
+        logger(deleteForever, `Deleting forever for user: ${user} and label: ${label} and threads: ${threads}`);
         for (let i = 0; i < threads.length; i++) {
             Gmail.Users.Messages.remove(user, threads[i].getId());
         }
@@ -322,6 +341,8 @@ export function mitime(isInitialRun = false) {
 
         const threads = GmailApp.search(`label:${label}`, 0, 100);
         let movedToTrash = false;
+
+        logger(removeEmails, `Removing emails for user: ${user} and label: ${label} and threads: ${threads}`);
         for (let i = 0; i < threads.length; i++) {
             const messages = threads[i].getMessages();
             const message = messages[0];
@@ -345,6 +366,8 @@ export function mitime(isInitialRun = false) {
     function getDate(locale, date = new Date()) {
         if (!locale) throw new MitimeError(getDate, 'Timezone is not defined');
         if (!date) throw new MitimeError(getDate, 'Date is not defined');
+
+        logger(getDate, `Getting date for locale: ${locale} and date: ${date}`);
         return date.toLocaleDateString(locale, {
             weekday: 'long',
             year: 'numeric',
@@ -366,6 +389,10 @@ export function mitime(isInitialRun = false) {
         const date = PREVIOUS_DATES_ARRAY[index];
         let d = new Date();
 
+        logger(
+            getPreviousDate,
+            `Getting previous date for index: ${index} and locale: ${locale} and date: ${date} and d: ${d}`,
+        );
         if (date === PREVIOUS_DATES.YESTERDAY) d.setDate(d.getDate() - 1);
         if (date === PREVIOUS_DATES.LAST_WEEK) d.setDate(d.getDate() - 7);
         if (date === PREVIOUS_DATES.LAST_MONTH) d.setMonth(d.getMonth() - 1);
@@ -392,6 +419,8 @@ export function mitime(isInitialRun = false) {
 
         const parsedMin = Math.ceil(min);
         const parsedMax = Math.floor(max);
+
+        logger(getRandomIndex, `Getting random index for min: ${parsedMin} and max: ${parsedMax}`);
         return Math.floor(Math.random() * (parsedMax - parsedMin + 1) + parsedMin);
     }
 
@@ -427,6 +456,7 @@ export function mitime(isInitialRun = false) {
 
     const body = generateEmail(isInitialRun, date);
 
+    logger(mitime, `Sending email to user: ${user} and alias: ${alias} and title: ${title} and body: ${body}`);
     sendEmail(user, alias, title, body);
 }
 
@@ -437,6 +467,7 @@ export function mitime(isInitialRun = false) {
  * @returns {void}
  */
 export function doGet() {
+    logger(doGet, 'Running doGet');
     /**
      * @name setupTrigger
      * @description Setup trigger for mitime
