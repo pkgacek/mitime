@@ -91,10 +91,25 @@ function logger(func, message, ...args) {
 /**
  * @name mitime
  * @description Main function for mitime
- * @param {boolean} isInitialRun decides if it's initial run or not and based on that it will send specific email
+ * @param {Record<any, any> & {isInitialRun: boolean}} props decides if it's initial run or not and based on that it will send specific email
  * @returns {void}
  */
-export function mitime(isInitialRun = false) {
+export function mitime(props) {
+    /**
+     * @name checkIsInitialRun
+     * @description Check if function is run for the first time
+     * @param {Record<any, any> & {isInitialRun: boolean}} properties decides if it's initial run or not and based on that it will send specific email
+     * @returns {boolean} isInitialRun
+     */
+    function checkIsInitialRun(properties) {
+        let isInitialRun;
+        if (!properties || Object.keys(properties).length === 0) isInitialRun = false;
+        if (properties && properties.isInitialRun) isInitialRun = properties.isInitialRun;
+
+        return isInitialRun;
+    }
+
+    const isInitialRun = checkIsInitialRun(props);
     logger(mitime, `Running mitime`, `isInitialRun: ${isInitialRun}`);
 
     /**
@@ -542,7 +557,7 @@ export function doGet() {
 
     setupTrigger(mitime.name);
     // Run mitime for the first time
-    mitime(true);
+    mitime({ isInitialRun: true });
 
     logger(doGet, 'Finished doGet');
 

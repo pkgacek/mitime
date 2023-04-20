@@ -54,7 +54,7 @@ function mitime(isInitialRun = !1) {
   function prepareEmailProperties(date2) {
     if (!date2)
       throw new MitimeError(prepareEmailProperties, "Date is empty");
-    return logger(prepareEmailProperties, "Preparing email properties", `date: ${date2}`), {
+    return logger(prepareEmailProperties, "Preparing email properties"), {
       MITIME_DATE: date2,
       MITIME,
       MITIME_URL,
@@ -92,7 +92,7 @@ function mitime(isInitialRun = !1) {
       throw new MitimeError(generateEmail, "isInitialEmail is empty");
     if (!date2)
       throw new MitimeError(generateEmail, "Date is empty");
-    logger(generateEmail, "Generating email", `isInitialEmail: ${isInitialEmail}`, `date: ${date2}`);
+    logger(generateEmail, "Generating email", `isInitialEmail: ${isInitialEmail}`);
     const emailContent = generateEmailContent(
       isInitialEmail ? EMAIL_TEMPLATES.INITIAL : EMAIL_TEMPLATES.REGULAR,
       throwbackContent
@@ -131,14 +131,14 @@ function mitime(isInitialRun = !1) {
       throw new MitimeError(createAlias, "User is not defined");
     if (!label2)
       throw new MitimeError(createAlias, "Alias is not defined", user2);
-    return logger(createAlias, "Creating alias", user2, label2), `${user2.split("@")[0]}+${label2}@${user2.split("@")[1]}`;
+    return logger(createAlias, "Creating alias", user2), `${user2.split("@")[0]}+${label2}@${user2.split("@")[1]}`;
   }
   function checkLabel(user2, label2) {
     if (!user2)
       throw new MitimeError(checkLabel, "User is not defined");
     if (!label2)
       throw new MitimeError(checkLabel, "Label is not defined", user2);
-    logger(checkLabel, "Checking label", user2, label2);
+    logger(checkLabel, `Checking label ${label2}`, user2);
     const foundLabel = GmailApp.getUserLabelByName(label2);
     foundLabel || GmailApp.createLabel(foundLabel);
   }
@@ -150,10 +150,10 @@ function mitime(isInitialRun = !1) {
       throw new MitimeError(getLabelId, "Labels are not defined", user2);
     if (!label2)
       throw new MitimeError(getLabelId, "Labels array is not defined");
-    logger(getLabelId, "Getting label id", user2, label2);
+    logger(getLabelId, `Getting label id of label ${label2}`, user2);
     const labelId2 = (_a = labels2.find((l) => l.name === label2)) == null ? void 0 : _a.id;
     if (!labelId2)
-      throw new MitimeError(getLabelId, "Could not find label id", user2, label2);
+      throw new MitimeError(getLabelId, `Could not find label id for label ${label2}`, user2);
     return labelId2;
   }
   function checkFilters(user2, filters2, filterCriteria2) {
@@ -208,7 +208,7 @@ function mitime(isInitialRun = !1) {
     let movedToTrash = !1;
     for (let i = 0; i < threads.length; i++) {
       const message = threads[i].getMessages()[0], fromMitime = `${MITIME} <${alias2}>`;
-      message.getFrom() === fromMitime && (logger(removeEmails, "Moving to trash", user2, label2, message.getId()), message.moveToTrash(), movedToTrash = !0);
+      message.getFrom() === fromMitime && (logger(removeEmails, "Moving to trash", user2, message.getId()), message.moveToTrash(), movedToTrash = !0);
     }
     movedToTrash && deleteForever(user2, label2);
   }
