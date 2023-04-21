@@ -100,9 +100,10 @@ class MitimeError extends Error {
 
 /**
  * @name logger
- * @param {Function} func
- * @param {string} message
- * @param  {any[]} args
+ * @description basic logger
+ * @param {Function} func function
+ * @param {string} message message
+ * @param  {any[]} args arguments to be additionally logged
  */
 function logger(func, message, ...args) {
     // eslint-disable-next-line no-console
@@ -136,10 +137,11 @@ export function mitime(props) {
             MITIME_SETTINGS_URL: MITIME_TRIGGER_SETTINGS_URL,
         };
     }
+
     /**
      * @name randomElement
      * @description returns random element from array
-     * @param {T[]} array
+     * @param {T[]} array array of elements
      * @returns {T} random element from array
      */
     function randomElement(array) {
@@ -153,7 +155,7 @@ export function mitime(props) {
     /**
      * @name prepareEmail
      * @description replaces properties in string with values from properties object
-     * @param {string} string
+     * @param {string} string email content with properties to be replaced
      * @param {Record<string, string>} properties
      * @returns {string} string with replaced properties
      */
@@ -175,8 +177,8 @@ export function mitime(props) {
     /**
      * @name generateEmailContent
      * @description generates email content from random elements of the template
-     * @param {object} template
-     * @param {string} throwbackContent
+     * @param {object} template email template
+     * @param {string} throwbackContent content of throwback email to be added to the template
      * @returns {string} email content
      */
     function generateEmailContent(template = EMAIL_TEMPLATES.REGULAR, throwbackContent = '') {
@@ -228,9 +230,9 @@ export function mitime(props) {
     /**
      * @name getFilters
      * @description prepares filters object for mitime
-     * @param {string} user
-     * @param {string} alias
-     * @param {string} labelId
+     * @param {string} user user email
+     * @param {string} alias user alias
+     * @param {string} labelId label id
      * @returns {Filters} Filter object
      */
     const getFilters = (user, alias, labelId) => {
@@ -277,8 +279,8 @@ export function mitime(props) {
     /**
      * @name checkLabel
      * @description check if label exist, if not create it
-     * @param {string} user
-     * @param {string} label
+     * @param {string} user user email
+     * @param {string} label label
      */
     function checkLabel(user, label) {
         if (!user) throw new MitimeError(checkLabel, 'User is not defined');
@@ -293,8 +295,8 @@ export function mitime(props) {
     /**
      * @name getLabelId
      * @description get label ids of provided labels
-     * @param {string} user
-     * @param {GoogleAppsScript.Gmail.Schema.Label[] | undefined} labels
+     * @param {string} user user email
+     * @param {GoogleAppsScript.Gmail.Schema.Label[] | undefined} labels labels
      * @param {string} label label
      * @returns {string} label id
      */
@@ -313,9 +315,10 @@ export function mitime(props) {
 
     /**
      * @name checkFilters
-     * @param {string} user
-     * @param {GoogleAppsScript.Gmail.Schema.Filter[] | undefined}
-     * @param {Filters} filterCriteria
+     * @description checks for existing filters and creates them if missing
+     * @param {string} user user email
+     * @param {GoogleAppsScript.Gmail.Schema.Filter[] | undefined} filters object
+     * @param {Filters} filterCriteria filter criteria object
      * @returns {void}
      */
     function checkFilters(user, filters, filterCriteria) {
@@ -363,30 +366,38 @@ export function mitime(props) {
     }
 
     /**
-     * @name deleteForever
-     * @param {string} user
-     * @param {string} label
+     * @name deleteEmails
+     * @description removes message from trash
+     * @param {string} user user email
+     * @param {string} alias user alias
+     * @param {string} label user label
      */
-    function deleteForever(user, label) {
-        if (!user) throw new MitimeError(deleteForever, 'User is not defined');
-        if (!label) throw new MitimeError(deleteForever, 'Label is not defined', user);
+    function deleteEmails(user, alias, label) {
+        if (!user) throw new MitimeError(deleteEmails, 'User is not defined');
+        if (!alias) throw new MitimeError(deleteEmails, 'Alias is not defined', user);
+        if (!label) throw new MitimeError(deleteEmails, 'Label is not defined', user);
 
         const threads = GmailApp.search(`in:trash label:${label}`);
 
         for (let i = 0; i < threads.length; i++) {
-            const threadId = threads[i].getId();
+            const messages = threads[i].getMessages();
+            const message = messages[0];
+            const messageId = message.getId();
+            const fromMitime = `${MITIME} <${alias}>`;
 
-            logger(deleteForever, `Deleting thread`, user, threadId);
+            if (message.getFrom() === fromMitime) {
+                logger(deleteEmails, 'Deleting message', user, messageId);
 
-            Gmail.Users.Threads.remove(user, threadId);
+                Gmail.Users.Messages.remove(user, messageId);
+            }
         }
     }
 
     /**
      * @name removeEmails
-     * @param {string} user
-     * @param {string} alias
-     * @param {string} label
+     * @param {string} user user email
+     * @param {string} alias user alias
+     * @param {string} label user label
      */
     function removeEmails(user, alias, label) {
         if (!user) throw new MitimeError(removeEmails, 'User is not defined');
@@ -408,17 +419,17 @@ export function mitime(props) {
             }
         }
 
-        if (movedToTrash) deleteForever(user, label);
+        if (movedToTrash) deleteEmails(user, label);
     }
 
     /**
      * @name getDate
-     * @param {string} locale
+     * @param {string} locale user locale
      * @param {Date} date date to format
      * @returns {string} formatted date
      */
     function getDate(locale, date = new Date()) {
-        if (!locale) throw new MitimeError(getDate, 'Timezone is not defined');
+        if (!locale) throw new MitimeError(getDate, 'Locale is not defined');
         if (!date) throw new MitimeError(getDate, 'Date is not defined');
 
         logger(getDate, `Getting date for locale: ${locale} and date: ${date}`);
@@ -433,8 +444,8 @@ export function mitime(props) {
 
     /**
      * @name getPreviousDate
-     * @param {number} index
-     * @param {string} locale
+     * @param {number} index index
+     * @param {string} locale user locale
      * @returns {{name: string, date: string}} object with random date name and date
      */
     function getPreviousDate(index, locale) {
@@ -465,9 +476,9 @@ export function mitime(props) {
 
     /**
      * @name getRandomIndex
-     * @param {number} min
-     * @param {number} max
-     * @returns {number}
+     * @param {number} min starting number
+     * @param {number} max max number
+     * @returns {number} random index
      */
     function getRandomIndex(min, max) {
         if (min === null || min === undefined) throw new MitimeError(getRandomIndex, 'Min is not defined');
