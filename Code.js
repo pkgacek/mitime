@@ -212,7 +212,7 @@ function mitime(props) {
       const message = threads[i].getMessages()[0], fromMitime = `${MITIME} <${alias2}>`;
       message.getFrom() === fromMitime && (logger(removeEmails, "Moving to trash", user2, message.getId()), message.moveToTrash(), movedToTrash = !0);
     }
-    movedToTrash && deleteEmails(user2, label2);
+    movedToTrash && deleteEmails(user2, alias2, label2);
   }
   function getDate(locale2, date2 = /* @__PURE__ */ new Date()) {
     if (!locale2)
