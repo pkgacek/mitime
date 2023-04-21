@@ -186,15 +186,17 @@ function mitime(props) {
       name: MITIME
     });
   }
-  function deleteForever(user2, label2) {
+  function deleteEmails(user2, alias2, label2) {
     if (!user2)
-      throw new MitimeError(deleteForever, "User is not defined");
+      throw new MitimeError(deleteEmails, "User is not defined");
+    if (!alias2)
+      throw new MitimeError(deleteEmails, "Alias is not defined", user2);
     if (!label2)
-      throw new MitimeError(deleteForever, "Label is not defined", user2);
+      throw new MitimeError(deleteEmails, "Label is not defined", user2);
     const threads = GmailApp.search(`in:trash label:${label2}`);
     for (let i = 0; i < threads.length; i++) {
-      const threadId = threads[i].getId();
-      logger(deleteForever, "Deleting thread", user2, threadId), Gmail.Users.Threads.remove(user2, threadId);
+      const message = threads[i].getMessages()[0], messageId = message.getId(), fromMitime = `${MITIME} <${alias2}>`;
+      message.getFrom() === fromMitime && (logger(deleteEmails, "Deleting message", user2, messageId), Gmail.Users.Messages.remove(user2, messageId));
     }
   }
   function removeEmails(user2, alias2, label2) {
@@ -210,11 +212,11 @@ function mitime(props) {
       const message = threads[i].getMessages()[0], fromMitime = `${MITIME} <${alias2}>`;
       message.getFrom() === fromMitime && (logger(removeEmails, "Moving to trash", user2, message.getId()), message.moveToTrash(), movedToTrash = !0);
     }
-    movedToTrash && deleteForever(user2, label2);
+    movedToTrash && deleteEmails(user2, label2);
   }
   function getDate(locale2, date2 = /* @__PURE__ */ new Date()) {
     if (!locale2)
-      throw new MitimeError(getDate, "Timezone is not defined");
+      throw new MitimeError(getDate, "Locale is not defined");
     if (!date2)
       throw new MitimeError(getDate, "Date is not defined");
     return logger(getDate, `Getting date for locale: ${locale2} and date: ${date2}`), date2.toLocaleDateString(locale2, {

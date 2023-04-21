@@ -419,7 +419,7 @@ export function mitime(props) {
             }
         }
 
-        if (movedToTrash) deleteEmails(user, label);
+        if (movedToTrash) deleteEmails(user, alias, label);
     }
 
     /**
