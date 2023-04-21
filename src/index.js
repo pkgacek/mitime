@@ -1,11 +1,32 @@
 /* global ScriptApp HtmlService GmailApp Gmail Session */
 
 /**
- * Object for Mitime filters
+ * Object for Filter Criteria
  * @typedef {{
- *  to: {criteria: {to: string}, action: {removeLabelIds: string[], addLabelIds: string[]}},
- *  from: {criteria: {from: string}, action: {removeLabelIds: string[], addLabelIds: string[]}}
- * }} MitimeFilters
+ *  criteria: { to: string },
+ *  action: { removeLabelIds: string[], addLabelIds: string[] }
+ * }} FilterCriteria
+ *
+ * Object for filters
+ * @typedef {{ to: FilterCriteria, from: FilterCriteria }} Filters
+ *
+ * Object for Trigger Props
+ * @typedef {{
+ *  "day-of-month": number,
+ *  authMode: string,
+ *  month: number,
+ *  minute: number,
+ *  triggerUid: string,
+ *  timezone: string,
+ *  second: number,
+ *  "week-of-year": number,
+ *  year: number,
+ *  "day-of-week": number,
+ *  hour: number,
+ * }} TriggerProps
+ *
+ * @typedef {{isInitialRun: boolean}} InitialProps
+ *
  */
 
 const MITIME = 'mitime';
@@ -91,26 +112,11 @@ function logger(func, message, ...args) {
 /**
  * @name mitime
  * @description Main function for mitime
- * @param {Record<any, any> & {isInitialRun: boolean}} props decides if it's initial run or not and based on that it will send specific email
+ * @param {TriggerProps | InitialProps} props decides if it's initial run or not and based on that it will send specific email
  * @returns {void}
  */
 export function mitime(props) {
-    /**
-     * @name checkIsInitialRun
-     * @description Check if function is run for the first time
-     * @param {Record<any, any> & {isInitialRun: boolean}} properties decides if it's initial run or not and based on that it will send specific email
-     * @returns {boolean} isInitialRun
-     */
-    function checkIsInitialRun(properties) {
-        let isInitialRun;
-        if (!properties || Object.keys(properties).length === 0) isInitialRun = false;
-        if (properties && properties.isInitialRun) isInitialRun = properties.isInitialRun;
-
-        return isInitialRun;
-    }
-
-    const isInitialRun = checkIsInitialRun(props);
-    logger(mitime, `Running mitime`, `isInitialRun: ${isInitialRun}`);
+    const isInitialRun = (props && props.isInitialRun) || false;
 
     /**
      * @name prepareEmailProperties
@@ -225,7 +231,7 @@ export function mitime(props) {
      * @param {string} user
      * @param {string} alias
      * @param {string} labelId
-     * @returns {MitimeFilters} Filter object
+     * @returns {Filters} Filter object
      */
     const getFilters = (user, alias, labelId) => {
         if (!user) throw new MitimeError(getFilters, 'User is not defined');
@@ -309,7 +315,7 @@ export function mitime(props) {
      * @name checkFilters
      * @param {string} user
      * @param {GoogleAppsScript.Gmail.Schema.Filter[] | undefined}
-     * @param {MitimeFilters} filterCriteria
+     * @param {Filters} filterCriteria
      * @returns {void}
      */
     function checkFilters(user, filters, filterCriteria) {
@@ -476,7 +482,7 @@ export function mitime(props) {
     }
 
     const user = Session.getEffectiveUser().getEmail();
-    const locale = Session.getActiveUserLocale();
+    const locale = Session.getActiveUserLocale() || 'en';
     const label = MITIME;
     const alias = createAlias(user, label);
 

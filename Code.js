@@ -49,8 +49,8 @@ class MitimeError extends Error {
 function logger(func, message, ...args) {
   console.log(`${getArgsString([func, ...args])} ${message}`);
 }
-function mitime(isInitialRun = !1) {
-  logger(mitime, "Running mitime", `isInitialRun: ${isInitialRun}`);
+function mitime(props) {
+  const isInitialRun = props && props.isInitialRun || !1;
   function prepareEmailProperties(date2) {
     if (!date2)
       throw new MitimeError(prepareEmailProperties, "Date is empty");
@@ -224,7 +224,7 @@ function mitime(isInitialRun = !1) {
       day: "numeric"
     });
   }
-  const user = Session.getEffectiveUser().getEmail(), locale = Session.getActiveUserLocale(), label = MITIME, alias = createAlias(user, label);
+  const user = Session.getEffectiveUser().getEmail(), locale = Session.getActiveUserLocale() || "en", label = MITIME, alias = createAlias(user, label);
   checkLabel(user, label), logger(mitime, "Finished checking labels");
   const { labels } = Gmail.Users.Labels.list(user), labelId = getLabelId(user, labels, label), filters = Gmail.Users.Settings.Filters.list(user).filter, filterCriteria = getFilters(user, alias, labelId);
   checkFilters(user, filters, filterCriteria), logger(mitime, "Finished checking filters"), removeEmails(user, alias, label), logger(mitime, "Finished removing emails");
@@ -245,7 +245,7 @@ function doGet() {
       throw new MitimeError(setupTrigger, "Function name is not defined");
     deleteTriggers(), ScriptApp.newTrigger(functionName).timeBased().everyDays(1).atHour(9).create();
   }
-  return setupTrigger(mitime.name), mitime(!0), logger(doGet, "Finished doGet"), HtmlService.createHtmlOutput(`
+  return setupTrigger(mitime.name), mitime({ isInitialRun: !0 }), logger(doGet, "Finished doGet"), HtmlService.createHtmlOutput(`
     <div>
         <h1>✏️ ${MITIME} setup completed.</h1>
         <p>You should receive an email from ${MITIME} in a few minutes. If you don't see it, check your spam folder.</p>
